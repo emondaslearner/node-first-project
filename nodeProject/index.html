@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+</head>
+<body>
+    <form class="shadow col-5 m-auto p-5 mt-5" action="http://localhost:3200/add" method="post" >
+        <input placeholder="product name" class="ti form-control" name="name" type="text">
+        <input placeholder="quantity" class="ti form-control mt-3" name="quantity" type="text">
+        <input placeholder="prize" class="ti form-control mt-3" name="prize" type="text">
+        <div class=" mt-5 col-3 m-auto">
+            <input class="btn btn-primary col-12" type="submit">
+        </div>
+    </form>
+    <div class="list-group col-5 m-auto mt-5 p-5 shadow items" >
+
+    </div>
+    <div class="update">
+
+    </div>
+
+    <script>
+            fetch('http://localhost:3200/products')
+            .then(res => res.json())
+            .then(data => {
+                data.map(pd => {
+                    const items = document.querySelector('.items');
+                    const create = document.createElement('li')
+                    create.innerHTML =`name:${pd.name} -- quantity:${pd.quantity} --  prize:${pd.prize} <button onclick="updateData('${pd._id}')" class="btn btn-success">update</button> <button onclick=(minus('${pd._id}')) class="btn btn-danger">x</button>`;
+                    create.setAttribute('class','list-group-item')
+                    items.appendChild(create);
+                })
+            })
+            const minus = (id) => {
+                fetch(`http://localhost:3200/delete/${id}`,{
+                    method:'DELETE'
+                })
+                .then(res => res.json())
+                .then(data => console.log('success'))
+            }
+            const updateData = (id) => {
+                fetch(`http://localhost:3200/update/${id}`)
+                .then(res => res.json())
+                .then(result => {
+                    const update = document.querySelector('.update');
+                    update.innerHTML = `
+                    <div class="shadow col-5 m-auto p-5 mt-5">
+                        <h3>update the product</h3>
+                        <input type="text" value="${result.quantity}" class="qty form-control mt-3" />
+                        <input type="text" value="${result.prize}" class="prize form-control mt-3" />
+                        <div class=" mt-5 col-3 m-auto">
+                            <input onclick={updateProduct('${result._id}')} class="btn btn-primary col-12" value="update" type="submit">
+                        </div>
+                    </div>
+                    `
+                })
+            }
+            function updateProduct(id){
+                const quantity = document.querySelector('.qty').value;
+                const prize = document.querySelector('.prize').value;
+                const productItem = {quantity,prize,id};
+                fetch(`http://localhost:3200/productUpdate/${id}`,{
+                    method:'PATCH',
+                    headers:{'Content-type': 'application/json; charset=UTF-8'},
+                    body:JSON.stringify({productItem})
+                })
+                .then(result => {
+                    console.log(result)
+                })
+            }
+    </script>
+</body>
+</html>
